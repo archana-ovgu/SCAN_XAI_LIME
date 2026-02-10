@@ -1,85 +1,222 @@
-# Clustering of Images using SCAN with Visual Explainations
+# 🧠 Image Clustering using SCAN with Visual Explainability (LIME)
 
-## Contents
-1. [Objective](#objective)
-0. [Installation](#installation)
-0. [Training](#training)
-0. [Steps to execute](#Steps-to-execute)
-0. [Results](#results)
+This project implements unsupervised image clustering using the SCAN (Semantic Clustering by Adopting Nearest neighbors) framework and enhances the clustering results with visual explanations using the XAI technique LIME (Local Interpretable Model-agnostic Explanations).
 
-## Objective
-To cluster images from a dataset using SCAN with visual explanations. Refer to the Reference Paper for detailed information.
+The goal is not only to cluster images effectively but also to understand which features contribute most to cluster assignments.
 
-## Installation
-The code runs with recent Pytorch versions, e.g. 2.0.1. 
-The most important packages can be installed as:
-```shell
+---
+
+## 🎯 Objective
+
+The main objectives of this project are:
+
+- Perform unsupervised image clustering using the SCAN framework
+- Apply clustering on the CIFAR100-20 dataset
+- Evaluate clustering performance using standard metrics
+- Provide visual explainability of clustering results using LIME
+- Identify and visualize the most important features contributing to cluster assignments
+
+Reference Paper: SCAN – Semantic Clustering by Adopting Nearest neighbors
+
+---
+
+## 👨‍💻 My Contribution
+
+My primary contribution to this project was implementing Explainable AI (XAI) using LIME to interpret clustering results.
+
+Specifically, I worked on:
+
+- Applying LIME to clustered image outputs
+- Generating visual explanations for cluster assignments
+- Identifying important image regions influencing clustering decisions
+- Creating prototype visualizations and heatmaps
+- Enhancing model transparency and interpretability
+
+This improves trust and understanding of unsupervised clustering models.
+
+---
+
+## ⚙️ Installation
+
+This project uses PyTorch and several supporting libraries.
+
+Create a conda environment and install dependencies:
+
+```bash
 conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
-conda install matplotlib scipy scikit-learn   # For evaluation and confusion matrix visualization
-conda install faiss-gpu                       # For efficient nearest neighbors search 
-conda install pyyaml easydict                 # For using config files
-conda install termcolor                       # For colored print statements
-conda install -c conda-forge grad-cam         # For visual explainations
-```
-We refer to the `requirements.txt` file for an overview of the packages in the environment we used to produce our results.
-
-## Training
-We have trained the SCAN model over the standard CIFAR100-20 image training dataset and persisted that model into the repository at `repository_eccv\cifar-20\scan\model.pth.tar`<br>
-Similarly, we have refined the model using self-labeling and persisted that model at `repository_eccv\cifar-20\selflabel\model.pth.tar`
-
-SCAN was imported from [here](https://github.com/wvangansbeke/Unsupervised-Classification)<br>
-The SCAN README file can be found [here](SCAN_README.md)<br>
-
-### Execution Steps
-STEP 1: Use K-nearest neighbors to find candidate images for each image with find_k_nearest_neighbours.py.
-STEP 2: Cluster the candidate images using the model with Cluster_img.py.
-STEP 3: Display evaluation charts with eval_charts.py.
-
-For query Image: For clustering and Visual Explanation
-!python scan_lime_explainability.py --query_image_path /content/drive/MyDrive/ATiML-SCAN-Clustering-main/ATiML-SCAN-Clustering-main/TEST_files/original_image_30.png --save_path /content/drive/MyDrive/ATiML-SCAN-Clustering-main/ATiML-SCAN-Clustering-main/TEST_files/
-
-
-For example, run the following commands to perform our method on CIFAR20:
-```shell
-python find_k_nearest_neighbours.py --config_env configs/env.yml --config_exp configs/pretext/simclr_cifar20.yml
-python Cluster_img.py --n 30 --query 500 --config_exp configs/scan/scan_cifar20.yml --model repository_eccv/cifar-20/scan/model.pth.tar
-python eval_charts.py --query 30 --config_exp configs/scan/scan_cifar20.yml --model repository_eccv/cifar-20/scan/model.pth.tar
+conda install matplotlib scipy scikit-learn
+conda install faiss-gpu
+conda install pyyaml easydict
+conda install termcolor
+conda install -c conda-forge grad-cam
+pip install lime
 ```
 
-To apply LIME on the clustered dataset, add the --visualize_prototypes flag as follows:
-```shell
-python Lime.py --n 300 --query 500 --config_exp configs/scan/scan_cifar20.yml --model repository_eccv/cifar-20/scan/model.pth.tar --visualize_prototypes
+Alternatively, install using:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 📂 Dataset
+
+We use the CIFAR100-20 dataset, which groups CIFAR-100 classes into 20 superclasses.
+
+The trained models are included in the repository:
 
 ```
-It will show prototype image of each cluster and it's respective heatmap. In the heatmap, you can see what were the most coontributing features for that cluster.
+repository_eccv/cifar-20/scan/model.pth.tar
+repository_eccv/cifar-20/selflabel/model.pth.tar
+```
 
-<p align="center">
-    <img src="images/example1.png" width="300"/>
-    
-</p>
+---
 
-<p align="center">
-    <img src="images/cluster wise feature highlight.png" width="300"/>
-</p>
+## 🧠 Training Overview
 
-### Results
-The confusion matrix is generated as follows:
-<p align="center">
-    <img src="images/confmatrix.png"/>
-</p>
+The SCAN training pipeline consists of:
 
-After evaluating clustering for dynamic number of candidate images [50, 100,...,1000], we got clustering performance metrics as follows:
-1. Accuracy
-2. Adjusted Rand Index
-3. Normalized Mutual Information
-4. Accuracy with Top 5 neighbors
+1. Feature extraction using pretext training (SimCLR)
+2. Finding nearest neighbors using feature similarity
+3. Training clustering model using SCAN
+4. Refining clusters using self-labeling
 
-And the charts we generated are as follows:
-<p align="center">
-    <img src="images/F1andACC.png"/>
-    <img src="images/ARI.png"/>
-    <img src="images/NMI.png"/>
-    <img src="images/ACCTop5.png"/>
-</p>
+SCAN framework source: https://github.com/wvangansbeke/Unsupervised-Classification
 
+---
+
+## ▶️ Execution Steps
+
+### Step 1: Find nearest neighbors
+
+```bash
+python find_k_nearest_neighbours.py \
+--config_env configs/env.yml \
+--config_exp configs/pretext/simclr_cifar20.yml
+```
+
+---
+
+### Step 2: Cluster images using SCAN
+
+```bash
+python Cluster_img.py \
+--n 30 \
+--query 500 \
+--config_exp configs/scan/scan_cifar20.yml \
+--model repository_eccv/cifar-20/scan/model.pth.tar
+```
+
+---
+
+### Step 3: Evaluate clustering performance
+
+```bash
+python eval_charts.py \
+--query 30 \
+--config_exp configs/scan/scan_cifar20.yml \
+--model repository_eccv/cifar-20/scan/model.pth.tar
+```
+
+---
+
+### Step 4: Apply LIME for Explainable AI (My Contribution)
+
+```bash
+python Lime.py \
+--n 300 \
+--query 500 \
+--config_exp configs/scan/scan_cifar20.yml \
+--model repository_eccv/cifar-20/scan/model.pth.tar \
+--visualize_prototypes
+```
+
+This generates:
+
+- Prototype image for each cluster
+- LIME heatmaps showing important regions
+- Visual explanation of clustering decisions
+
+---
+
+### Step 5: Visual Explanation for a Query Image
+
+```bash
+python scan_lime_explainability.py \
+--query_image_path path/to/query_image.png \
+--save_path path/to/save_results/
+```
+
+This produces:
+
+- Cluster assignment
+- LIME explanation heatmap
+- Feature importance visualization
+
+---
+
+## 📊 Results
+
+The clustering performance was evaluated using the following metrics:
+
+- Accuracy (ACC)
+- Adjusted Rand Index (ARI)
+- Normalized Mutual Information (NMI)
+- Accuracy with Top-5 neighbors
+
+---
+
+## 📈 Visual Outputs
+
+The project generates:
+
+- Confusion Matrix
+- Accuracy vs Number of Neighbors graph
+- Cluster prototype visualizations
+- LIME explanation heatmaps
+
+These visualizations help understand both clustering performance and feature importance.
+
+---
+
+## 🛠️ Technologies Used
+
+- Python
+- PyTorch
+- SCAN Framework
+- LIME (Explainable AI)
+- FAISS (Nearest neighbor search)
+- Scikit-learn
+- Matplotlib
+
+---
+
+## 🚀 Key Features
+
+- Unsupervised image clustering using SCAN
+- Efficient nearest neighbor search using FAISS
+- Explainable AI using LIME
+- Visual heatmaps for interpretability
+- Cluster prototype visualization
+
+---
+
+## 📌 Summary
+
+This project combines state-of-the-art unsupervised clustering with Explainable AI to provide both accurate clustering and interpretable results.
+
+The integration of LIME significantly improves transparency by highlighting image features responsible for cluster assignments.
+
+---
+
+## 👨‍💻 Authors
+
+Team Project Contribution
+
+Explainable AI (LIME) Implementation and Visual Explainability: Archana Yadav
+SCAN Framework Integration and Clustering Pipeline: Venkatesh Date and Team
+
+Original repository:
+https://github.com/venkatesh281996/SCAN_XAI_LIME
 
