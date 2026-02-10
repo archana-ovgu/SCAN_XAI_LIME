@@ -215,6 +215,7 @@ The integration of LIME significantly improves transparency by highlighting imag
 Team Project Contribution
 
 Explainable AI (LIME) Implementation and Visual Explainability: Archana Yadav
+
 SCAN Framework Integration and Clustering Pipeline: Venkatesh Date and Team
 
 Original repository:
